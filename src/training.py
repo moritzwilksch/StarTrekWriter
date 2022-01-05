@@ -42,7 +42,7 @@ def process_and_split_dataset(data_list: list[str], tokenizer):
     # to dataset & processing
     data = tokenizer.tokenize(data_list)
     data = tf.data.Dataset.from_tensor_slices((data, data))
-    data = data.map(lambda x, y: (x[:-1].flat_values, y[1:].flat_values))
+    data = data.map(lambda x, y: (x.flat_values[:-1], y.flat_values[1:]))
 
     # splitting
     data = data.shuffle(buffer_size=4096, seed=42)

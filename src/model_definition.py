@@ -8,10 +8,10 @@ class SequenceModel(keras.Model):
     ):
         super(SequenceModel, self).__init__()
 
-        self.embedding = keras.layers.Embedding(vocab_size, embedding_dim)
-        self.gru = keras.layers.GRU(recurrent_size, return_sequences=True)
-        self.hidden = keras.layers.Dense(hidden_size, activation="relu")
-        self.output_layer = keras.layers.Dense(vocab_size, activation="softmax")
+        self.embedding = keras.layers.Embedding(input_dim=vocab_size, output_dim=embedding_dim, mask_zero=True)
+        self.gru = keras.layers.GRU(units=recurrent_size, return_sequences=True)
+        self.hidden = keras.layers.Dense(units=hidden_size, activation="relu")
+        self.output_layer = keras.layers.Dense(units=vocab_size, activation="softmax")
 
     def call(self, x):
         x = self.embedding(x)
