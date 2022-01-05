@@ -1,2 +1,3 @@
-download:
-	python src/00_download_data.py
+create-data:
+	python src/_download_data.py && \
+	python src/data_cleaning.py
