@@ -7,7 +7,8 @@ from model_definition import SequenceModel
 import yaml
 from rich.console import Console
 from tensorflow.keras import mixed_precision
-mixed_precision.set_global_policy('mixed_float16')
+
+mixed_precision.set_global_policy("mixed_float16")
 
 
 c = Console()
@@ -86,6 +87,25 @@ opt = tf.keras.optimizers.Adam(learning_rate=config.get("learning_rate"))
 model.compile(opt, loss, metrics=["accuracy"])
 
 # -------------------------- Model Training ---------------------------------
-model.fit(train, validation_data=val, epochs=config.get("epochs"))
+# model.fit(train, validation_data=val, epochs=config.get("epochs"))
 
-print("done")
+
+def generate_from_model(
+    model: tf.keras.Model, seed: str, temperature: float = 1, total_tokens: int = 100
+):
+    tokens = tokenizer.tokenize([seed]).flat_values
+
+    while len(tokens) < total_tokens:
+        # generate next token
+        prediction = model(tokens[None, :], training=False)[:, :, -1]
+        prediction = tf.nn.softmax(prediction / temperature)
+        token = tf.random.categorical(prediction, num_samples=1)[0]
+        token = token.numpy()[0]
+        tokens = tf.concat([tokens, tf.constant([token], dtype=tf.int64)], 0)
+
+    final_words = tokenizer.detokenize(tokens[None, :])
+    return "".join([x.decode("utf-8") for x in final_words.numpy()[0]])
+
+
+generate_from_model(model, "[BRIDGE]", temperature=0.8)
+
