@@ -31,7 +31,7 @@ def main():
 
     # ------------- Writing output -----------------
     with open("data/clean_lines.txt", "w") as f:
-        for line in all_lines:
+        for line in all_lines[1:]:  # first line is credits to data source
             f.write(line + "\n")
 
     c.print("[bold green][INFO][/] Cleaned up data and saved to data/clean_lines.txt.")
