@@ -61,7 +61,8 @@ model = SequenceModel(
     vocab_size=vocab_size, embedding_dim=128, recurrent_size=128, hidden_size=128
 )
 
-model.compile("adam", "sparse_categorical_crossentropy")
+loss = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
+model.compile("adam", loss, metrics=["accuracy"])
 model.fit(train, validation_data=val, epochs=10)
 
 print("done")

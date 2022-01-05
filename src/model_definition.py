@@ -11,7 +11,7 @@ class SequenceModel(keras.Model):
         self.embedding = keras.layers.Embedding(input_dim=vocab_size, output_dim=embedding_dim, mask_zero=True)
         self.gru = keras.layers.GRU(units=recurrent_size, return_sequences=True)
         self.hidden = keras.layers.Dense(units=hidden_size, activation="relu")
-        self.output_layer = keras.layers.Dense(units=vocab_size, activation="softmax")
+        self.output_layer = keras.layers.Dense(units=vocab_size)
 
     def call(self, x):
         x = self.embedding(x)
