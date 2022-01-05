@@ -28,7 +28,7 @@ RECREATE_VOCAB = False
 
 if RECREATE_VOCAB:
     vocab = bert_vocab.bert_vocab_from_dataset(
-        data,
+        tf.data.TextLineDataset("data/clean_lines.txt")
         vocab_size=5000,
         reserved_tokens=["[PAD]", "[UNK]"],
         bert_tokenizer_params={"lower_case": True},
@@ -87,7 +87,7 @@ opt = tf.keras.optimizers.Adam(learning_rate=config.get("learning_rate"))
 model.compile(opt, loss, metrics=["accuracy"])
 
 # -------------------------- Model Training ---------------------------------
-# model.fit(train, validation_data=val, epochs=config.get("epochs"))
+model.fit(train, validation_data=val, epochs=config.get("epochs"))
 
 
 def generate_from_model(
@@ -97,15 +97,15 @@ def generate_from_model(
 
     while len(tokens) < total_tokens:
         # generate next token
-        prediction = model(tokens[None, :], training=False)[:, :, -1]
+        prediction = model(tokens[None, :], training=False)[:, -1, :]
         prediction = tf.nn.softmax(prediction / temperature)
         token = tf.random.categorical(prediction, num_samples=1)[0]
         token = token.numpy()[0]
         tokens = tf.concat([tokens, tf.constant([token], dtype=tf.int64)], 0)
 
     final_words = tokenizer.detokenize(tokens[None, :])
-    return "".join([x.decode("utf-8") for x in final_words.numpy()[0]])
+    return " ".join([x.decode("utf-8") for x in final_words.numpy()[0]])
 
 
-generate_from_model(model, "[BRIDGE]", temperature=0.8)
+print(generate_from_model(model, "[BRIDGE]", temperature=0.8))
 
