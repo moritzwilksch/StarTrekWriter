@@ -1,1 +1,10 @@
 default:
+  # learning
+  batch_size: 64
+  learning_rate: 0.001
+  epochs: 10
+  
+  # architecture
+  embedding_dim: 128
+  recurrent_size: 128
+  hidden_size: 128

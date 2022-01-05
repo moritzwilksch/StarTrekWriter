@@ -4,6 +4,19 @@ import tensorflow_text as text
 from tensorflow_text.tools.wordpiece_vocab import bert_vocab_from_dataset as bert_vocab
 import boto3
 from model_definition import SequenceModel
+import yaml
+from rich.console import Console
+from tensorflow.keras import mixed_precision
+mixed_precision.set_global_policy('mixed_float16')
+
+
+c = Console()
+
+with open("src/modelconfig.yaml", "r") as f:
+    config = yaml.safe_load(f)["default"]
+
+c.print(f"Using config = {config}")
+
 
 bucket = boto3.resource("s3").Bucket("deep-text-generation")
 
@@ -34,6 +47,7 @@ with open("data/vocab.txt") as f:
     vocab_size = len(f.readlines())
 
 
+# -------------------------- Data Setup ---------------------------------
 def process_and_split_dataset(data_list: list[str], tokenizer):
     ds_len = len(data_list)
     train_size = int(ds_len * 0.8)
@@ -52,17 +66,26 @@ def process_and_split_dataset(data_list: list[str], tokenizer):
     return train, val
 
 
-BATCH_SIZE = 64
+BATCH_SIZE = config.get("batch_size")
 train, val = process_and_split_dataset(data, tokenizer=tokenizer)
 train = train.padded_batch(BATCH_SIZE).prefetch(32)
 val = val.padded_batch(BATCH_SIZE).prefetch(32)
 
+
+# -------------------------- Model Setup ---------------------------------
 model = SequenceModel(
-    vocab_size=vocab_size, embedding_dim=128, recurrent_size=128, hidden_size=128
+    vocab_size=vocab_size,
+    embedding_dim=config.get("embedding_dim"),
+    recurrent_size=config.get("recurrent_size"),
+    hidden_size=config.get("hidden_size"),
 )
 
 loss = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
-model.compile("adam", loss, metrics=["accuracy"])
-model.fit(train, validation_data=val, epochs=10)
+opt = tf.keras.optimizers.Adam(learning_rate=config.get("learning_rate"))
+
+model.compile(opt, loss, metrics=["accuracy"])
+
+# -------------------------- Model Training ---------------------------------
+model.fit(train, validation_data=val, epochs=config.get("epochs"))
 
 print("done")
