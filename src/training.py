@@ -28,8 +28,8 @@ RECREATE_VOCAB = False
 
 if RECREATE_VOCAB:
     vocab = bert_vocab.bert_vocab_from_dataset(
-        tf.data.TextLineDataset("data/clean_lines.txt")
-        vocab_size=5000,
+        tf.data.TextLineDataset("data/clean_lines.txt"),
+        vocab_size=1000,
         reserved_tokens=["[PAD]", "[UNK]"],
         bert_tokenizer_params={"lower_case": True},
     )
@@ -99,7 +99,7 @@ def generate_from_model(
         # generate next token
         prediction = model(tokens[None, :], training=False)[:, -1, :]
         prediction = tf.nn.softmax(prediction / temperature)
-        token = tf.random.categorical(prediction, num_samples=1)[0]
+        token = tf.random.categorical(tf.math.log(prediction), num_samples=1)[0]
         token = token.numpy()[0]
         tokens = tf.concat([tokens, tf.constant([token], dtype=tf.int64)], 0)
 
