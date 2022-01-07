@@ -5,6 +5,6 @@ default:
   epochs: 10
   
   # architecture
-  embedding_dim: 64
+  embedding_dim: 128
   recurrent_size: 128
-  hidden_size: 256
+  hidden_size: 512

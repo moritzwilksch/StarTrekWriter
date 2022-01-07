@@ -1,6 +1,6 @@
 import json
 from rich.console import Console
-
+import re
 c = Console()
 
 
@@ -17,7 +17,7 @@ def main():
     for _, script in series_data.items():
         lines = script.split(" \n")  # space is important!
         lines = [
-            l.replace("\n", "").replace("\xa0", "")
+            re.sub(r"\s+", " ", l.replace("\n", " ").replace("\xa0", " "))
             for l in lines
             if l != "" and not "trademark" in l.lower()
         ]
