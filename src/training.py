@@ -92,14 +92,17 @@ model.compile(opt, loss, metrics=["accuracy"])
 def scheduler(epoch, lr):
     progress = epoch / config.get("epochs")
 
-    if progress < 0.5:
-        print("Learning rate:", lr)
-        return lr
+    if progress < 0.75:
+        return config.get("learning_rate")
     else:
-        print("Learning rate:", lr / 10)
-        return lr / 10
+        return config.get("learning_rate") / 10
 
-callbacks = [keras.callbacks.LearningRateScheduler(scheduler)] if config.get("lr_scheduler", False) else []
+
+callbacks = (
+    [keras.callbacks.LearningRateScheduler(scheduler)]
+    if config.get("use_scheduler", False)
+    else []
+)
 
 model.fit(
     train,
@@ -108,8 +111,6 @@ model.fit(
     callbacks=callbacks,
     verbose=1,
 )
-
-model.fit(train, validation_data=val, epochs=config.get("epochs"), callbacks=callbacks)
 
 
 def generate_from_model(
@@ -126,7 +127,22 @@ def generate_from_model(
         tokens = tf.concat([tokens, tf.constant([token], dtype=tf.int64)], 0)
 
     final_words = tokenizer.detokenize(tokens[None, :])
-    return " ".join([x.decode("utf-8") for x in final_words.numpy()[0]])
+
+    final_text =  " ".join([x.decode("utf-8") for x in final_words.numpy()[0]])
+
+    for punct in ",.!?;:'":
+        final_text = final_text.replace(f" {punct}", f"{punct}")
+
+    for open_brackets in "([{":
+        final_text = final_text.replace(f"{open_brackets} ", f"{open_brackets}")
+    
+    for closing_brackets in "}])":
+        final_text = final_text.replace(f" {closing_brackets}", f"{closing_brackets}")
+    
+    for name in ["picard", "riker", "laforge", "worf"]:
+        final_text = final_text.replace(f"{name}:", f"{name.upper()}")
+
+    return final_text
 
 
 print(generate_from_model(model, "[BRIDGE]", temperature=0.8))
