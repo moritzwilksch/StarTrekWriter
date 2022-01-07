@@ -87,7 +87,29 @@ opt = tf.keras.optimizers.Adam(learning_rate=config.get("learning_rate"))
 model.compile(opt, loss, metrics=["accuracy"])
 
 # -------------------------- Model Training ---------------------------------
-model.fit(train, validation_data=val, epochs=config.get("epochs"))
+
+
+def scheduler(epoch, lr):
+    progress = epoch / config.get("epochs")
+
+    if progress < 0.5:
+        print("Learning rate:", lr)
+        return lr
+    else:
+        print("Learning rate:", lr / 10)
+        return lr / 10
+
+callbacks = [keras.callbacks.LearningRateScheduler(scheduler)] if config.get("lr_scheduler", False) else []
+
+model.fit(
+    train,
+    epochs=config.get("epochs"),
+    validation_data=val,
+    callbacks=callbacks,
+    verbose=1,
+)
+
+model.fit(train, validation_data=val, epochs=config.get("epochs"), callbacks=callbacks)
 
 
 def generate_from_model(

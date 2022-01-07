@@ -3,8 +3,9 @@ default:
   batch_size: 128
   learning_rate: 0.01
   epochs: 10
+  use_scheduler: True
   
   # architecture
   embedding_dim: 128
-  recurrent_size: 128
+  recurrent_size: 256
   hidden_size: 512

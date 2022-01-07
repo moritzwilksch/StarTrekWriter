@@ -1,6 +1,7 @@
 import json
 from rich.console import Console
 import re
+
 c = Console()
 
 
@@ -30,13 +31,14 @@ def main():
     #     all_lines[idx] = line + " " + all_lines[idx + 1].split()[0]
 
     # merge lines
-    n_to_merge = 3
+    n_to_merge = 10
     merged_lines = []
     for idx in range(0, len(all_lines) - n_to_merge, n_to_merge):
-        merged_lines.append(
-            " ".join(all_lines[idx : idx + n_to_merge])
-        )
-
+        merged_lines.append(" ".join(all_lines[idx : idx + n_to_merge]))
+        
+    # merged_lines = []
+    # for episode in all_lines:
+    #    merged_lines.append(" ".join(episode))
     # ------------- Writing output -----------------
     with open("data/clean_lines.txt", "w") as f:
         for line in merged_lines[1:]:  # first line is credits to data source
