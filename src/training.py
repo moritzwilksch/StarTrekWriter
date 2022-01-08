@@ -64,13 +64,14 @@ def process_and_split_dataset(data_list: list[str], tokenizer):
     train = data.take(train_size)
     val = data.skip(train_size).take(val_size)
 
-    return train, val
+    return train, val, data
 
 
 BATCH_SIZE = config.get("batch_size")
-train, val = process_and_split_dataset(data, tokenizer=tokenizer)
+train, val, total_data = process_and_split_dataset(data, tokenizer=tokenizer)
 train = train.padded_batch(BATCH_SIZE).prefetch(32)
 val = val.padded_batch(BATCH_SIZE).prefetch(32)
+total_data = total_data.padded_batch(BATCH_SIZE).prefetch(32)
 
 
 # -------------------------- Model Setup ---------------------------------
@@ -139,10 +140,10 @@ def generate_from_model(
     for closing_brackets in "}])":
         final_text = final_text.replace(f" {closing_brackets}", f"{closing_brackets}")
     
-    for name in ["picard", "riker", "laforge", "worf"]:
-        final_text = final_text.replace(f"{name}:", f"{name.upper()}")
+    for name in ["picard", "riker", "laforge", "worf", "data", "crusher"]:
+        final_text = final_text.replace(f"{name}:", f"{name.upper()}:")
 
-    return final_text
+    return final_text.replace("' ", "'")
 
 
 print(generate_from_model(model, "[BRIDGE]", temperature=0.8))
