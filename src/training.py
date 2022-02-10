@@ -3,7 +3,7 @@ from tensorflow import keras
 import tensorflow_text as text
 from tensorflow_text.tools.wordpiece_vocab import bert_vocab_from_dataset as bert_vocab
 import boto3
-from model_definition import SequenceModel
+from model_definition import SequenceModel, SequenceModelWithAttention
 import yaml
 from rich.console import Console
 from tensorflow.keras import mixed_precision
@@ -75,7 +75,8 @@ total_data = total_data.padded_batch(BATCH_SIZE).prefetch(32)
 
 
 # -------------------------- Model Setup ---------------------------------
-model = SequenceModel(
+# model = SequenceModel(
+model = SequenceModelWithAttention(
     vocab_size=vocab_size,
     embedding_dim=config.get("embedding_dim"),
     recurrent_size=config.get("recurrent_size"),
