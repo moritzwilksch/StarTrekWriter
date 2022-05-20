@@ -1,12 +1,13 @@
 import json
-from rich.console import Console
 import re
+
+from rich.console import Console
 
 c = Console()
 
 
 def main():
-    """ Load local data and clean it up. Saves to data/clean_lines.txt"""
+    """Load local data and clean it up. Saves to data/clean_lines.txt"""
     # ------------- Loading -----------------
     with open("data/all_scripts_raw.json", "r") as f:
         data = json.load(f)
@@ -35,7 +36,7 @@ def main():
     merged_lines = []
     for idx in range(0, len(all_lines) - n_to_merge, n_to_merge):
         merged_lines.append(" ".join(all_lines[idx : idx + n_to_merge]))
-        
+
     # merged_lines = []
     # for episode in all_lines:
     #    merged_lines.append(" ".join(episode))

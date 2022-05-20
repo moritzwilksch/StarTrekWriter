@@ -1,6 +1,8 @@
-import boto3
 import io
+
+import boto3
 from rich.console import Console
+
 c = Console()
 
 s3 = boto3.resource("s3")

@@ -1,7 +1,7 @@
 # Custom
 data/*.json
 data/*.txt
-
+logs/*
 
 
 # Byte-compiled / optimized / DLL files

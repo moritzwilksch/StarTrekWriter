@@ -1,12 +1,14 @@
-import tensorflow as tf
-from tensorflow import keras
-import tensorflow_text as text
-from tensorflow_text.tools.wordpiece_vocab import bert_vocab_from_dataset as bert_vocab
 import boto3
-from model_definition import SequenceModel, SequenceModelWithAttention
+import tensorflow as tf
+import tensorflow_text as text
 import yaml
 from rich.console import Console
+from tensorflow import keras
 from tensorflow.keras import mixed_precision
+from tensorflow_text.tools.wordpiece_vocab import \
+    bert_vocab_from_dataset as bert_vocab
+
+from model_definition import SequenceModel, SequenceModelWithAttention
 
 mixed_precision.set_global_policy("mixed_float16")
 
@@ -130,17 +132,17 @@ def generate_from_model(
 
     final_words = tokenizer.detokenize(tokens[None, :])
 
-    final_text =  " ".join([x.decode("utf-8") for x in final_words.numpy()[0]])
+    final_text = " ".join([x.decode("utf-8") for x in final_words.numpy()[0]])
 
     for punct in ",.!?;:'":
         final_text = final_text.replace(f" {punct}", f"{punct}")
 
     for open_brackets in "([{":
         final_text = final_text.replace(f"{open_brackets} ", f"{open_brackets}")
-    
+
     for closing_brackets in "}])":
         final_text = final_text.replace(f" {closing_brackets}", f"{closing_brackets}")
-    
+
     for name in ["picard", "riker", "laforge", "worf", "data", "crusher"]:
         final_text = final_text.replace(f"{name}:", f"{name.upper()}:")
 
@@ -148,4 +150,3 @@ def generate_from_model(
 
 
 print(generate_from_model(model, "[BRIDGE]", temperature=0.8))
-
